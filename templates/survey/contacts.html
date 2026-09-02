@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+    <h2 class="question-title">Оставьте контакты, чтобы получить отчёт</h2>
+    <p class="question-subtitle">Мы сформируем ваш персональный отчёт с рисками и рекомендациями.</p>
+    {% if form.non_field_errors %}{% for error in form.non_field_errors %}<div class="errorlist">{{ error }}</div>{% endfor %}{% endif %}
+    <form method="post">
+        {% csrf_token %}
+        {% for field in form %}
+            <label class="field-label">{{ field.label }}{% if field.field.required %} *{% endif %}</label>
+            {{ field }}
+            {% for error in field.errors %}<div class="errorlist">{{ error }}</div>{% endfor %}
+        {% endfor %}
+        <div class="nav-buttons">
+            <span></span>
+            <button type="submit" class="btn-secondary" style="background: var(--primary); color: #fff; border: none;">Получить отчёт</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

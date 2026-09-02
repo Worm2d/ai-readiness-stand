@@ -1,0 +1,47 @@
+<div class="card">
+    {% if session.visitor_name %}<h2 class="question-title">Здравствуйте, {{ session.visitor_name }}!</h2>
+    {% else %}<h2 class="question-title">Здравствуйте!</h2>{% endif %}
+    <p class="question-subtitle">{{ result_title }}</p>
+    <div class="score-gauge-wrap">
+        <div class="score-value">{{ score }}/100</div>
+        <div class="progress-wrap"><div class="progress-bar" style="width: {{ score }}%; background: {% if interpretation %}{{ interpretation.color }}{% else %}var(--primary){% endif %};"></div></div>
+        {% if interpretation %}
+            <div class="score-interpretation-title" style="color: {{ interpretation.color }};">{{ interpretation.title }}</div>
+            <p>{{ interpretation.description }}</p>
+        {% endif %}
+    </div>
+</div>
+
+<h3 class="section-title">Выявленные риски</h3>
+{% for risk in risks %}
+<div class="risk-item">
+    <div class="risk-title">{{ risk.title }}</div>
+    <div>
+        <span class="badge badge-{{ risk.severity }}">{{ risk.get_severity_display }}</span>
+        {% for cat in risk.categories.all %}<span class="badge" style="background: {{ cat.color }};">{{ cat.name }}</span>{% endfor %}
+    </div>
+    <p>{{ risk.description }}</p>
+    {% if risk.public_case_description %}
+    <div class="risk-case">
+        <strong>{{ risk.public_case_title }}</strong><br>
+        {{ risk.public_case_description }}
+        {% if risk.public_case_source_url %} — <a href="{{ risk.public_case_source_url }}" target="_blank" rel="noopener">источник</a>{% endif %}
+        {% if risk.public_case_region %} ({{ risk.public_case_region }}){% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endfor %}
+
+<h3 class="section-title">Рекомендации</h3>
+<div class="card">
+    {% for rec in recommendations %}<div class="recommendation-item">• <strong>{{ rec.title }}</strong> — {{ rec.description }}</div>{% endfor %}
+</div>
+
+<h3 class="section-title">Услуги {{ site_settings.company_name }}</h3>
+{% for service in services %}
+<div class="service-card">
+    <div class="service-title">{{ service.title }}</div>
+    <p>{{ service.short_description }}</p>
+    <a href="{{ service.url }}" target="_blank" rel="noopener" class="btn-secondary">Подробнее</a>
+</div>
+{% endfor %}

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+{% include "report/_report_body.html" %}
+<div class="action-buttons">
+    <a href="{{ pdf_url }}" target="_blank" class="btn-big" style="font-size:18px; padding:16px 32px;">Скачать PDF</a>
+</div>
+<h3 class="section-title">Свяжитесь с {{ site_settings.company_name }}</h3>
+<div class="qr-block">
+    <div style="text-align:center;">
+        <img src="{{ website_qr }}" alt="QR-код на сайт">
+        <p><a href="{{ site_settings.company_website }}" target="_blank" rel="noopener">{{ site_settings.company_website }}</a></p>
+    </div>
+    <div style="text-align:center;">
+        <img src="{{ mailto_qr }}" alt="QR-код для письма">
+        <p><a href="mailto:{{ site_settings.company_email }}">{{ site_settings.company_email }}</a></p>
+    </div>
+</div>
+{% endblock %}

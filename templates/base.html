@@ -1,0 +1,20 @@
+{% load static %}<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>{% block title %}{{ site_settings.company_name }}{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <style>:root { --primary: {{ site_settings.primary_color }}; }</style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <div class="page-wrap">
+        <div class="container-narrow">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+    <div class="footer">{{ site_settings.footer_text }}</div>
+    <script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

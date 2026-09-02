@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+    {% if total > 1 %}
+    <div class="progress-wrap"><div class="progress-bar" style="width: {{ progress_percent }}%;"></div></div>
+    <div class="progress-label">Вопрос {{ step }} из {{ total }}</div>
+    {% endif %}
+
+    <h2 class="question-title">{{ question.title }}</h2>
+    {% if question.subtitle %}<p class="question-subtitle">{{ question.subtitle }}</p>{% endif %}
+
+    <div id="required-warning" style="display:none;" class="errorlist">Пожалуйста, ответьте на вопрос, чтобы продолжить.</div>
+
+    {% if form.errors %}
+        {% for field in form %}{% for error in field.errors %}<div class="errorlist">{{ error }}</div>{% endfor %}{% endfor %}
+    {% endif %}
+
+    <form method="post" id="question-form" data-required="{{ question.is_required|yesno:'true,false' }}" data-question-type="{{ question.question_type }}">
+        {% csrf_token %}
+        {% if question.question_type == "single_choice" or question.question_type == "multiple_choice" %}
+            {% for choice in form.answer %}
+                <label class="option-label">{{ choice.tag }} {{ choice.choice_label }}</label>
+            {% endfor %}
+        {% elif question.question_type == "text_input" or question.question_type == "number_input" %}
+            {{ form.answer }}
+        {% elif question.question_type == "info_text" %}
+            <p style="font-size:18px; color:#444; margin: 24px 0;">Нажмите «{% if is_first %}Начать{% else %}Далее{% endif %}», чтобы продолжить.</p>
+        {% endif %}
+        <div class="nav-buttons">
+            <span></span>
+            <button type="submit" class="btn-secondary" style="background: var(--primary); color: #fff; border: none;">
+                {% if is_first %}Начать{% else %}Далее{% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

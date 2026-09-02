@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+db.sqlite3
+.env
+media/*
+!media/branding/
+!media/branding/.gitkeep
+staticfiles/
+venv/
+.venv/
+*.log

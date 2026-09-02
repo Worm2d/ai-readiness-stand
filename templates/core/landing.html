@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="landing-screen">
+    {% if settings.logo %}
+        <img src="{{ settings.logo.url }}" alt="{{ settings.company_name }}" class="logo">
+    {% else %}
+        <h2 style="color: var(--primary);">{{ settings.company_name }}</h2>
+    {% endif %}
+    <h1 class="landing-title">{{ settings.landing_title }}</h1>
+    <p class="landing-subtitle">{{ settings.landing_subtitle }}</p>
+    <div class="landing-buttons">
+        <a href="{% url 'survey_start' %}" class="btn-big">{{ settings.button_text }}</a>
+        <a href="{% url 'survey_start' %}" class="btn-big">{{ settings.button_text }}</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="qr-block">
+    <div style="text-align:center;">
+        <img src="{{ report_qr }}" alt="QR-код на отчёт">
+        <p style="font-size:13px; color:#666;">Отсканируйте, чтобы открыть отчёт на телефоне</p>
+    </div>
+</div>
+{% include "report/_report_body.html" %}
+<div class="qr-block">
+    <div style="text-align:center;">
+        <img src="{{ report_qr }}" alt="QR-код на отчёт">
+        <p style="font-size:13px; color:#666;">Ссылка на этот отчёт: <a href="{{ report_url }}">{{ report_url }}</a></p>
+    </div>
+</div>
+<div class="action-buttons">
+    <a href="{% url 'report_pdf' session.uuid %}" target="_blank" class="btn-big" style="font-size:18px; padding:16px 32px;">Скачать PDF</a>
+    <a href="{% url 'landing' %}" class="btn-secondary">Начать новый опрос</a>
+</div>
+{% endblock %}
