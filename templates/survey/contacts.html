@@ -4,7 +4,8 @@
     <h2 class="question-title">Оставьте контакты, чтобы получить отчёт</h2>
     <p class="question-subtitle">Мы сформируем ваш персональный отчёт с рисками и рекомендациями.</p>
     {% if form.non_field_errors %}{% for error in form.non_field_errors %}<div class="errorlist">{{ error }}</div>{% endfor %}{% endif %}
-    <form method="post">
+
+    <form method="post" id="contacts-form">
         {% csrf_token %}
         {% for field in form %}
             {% if field.name != "personal_data_consent" %}
@@ -13,25 +14,55 @@
                 {% for error in field.errors %}<div class="errorlist">{{ error }}</div>{% endfor %}
             {% endif %}
         {% endfor %}
+
         {% if form.personal_data_consent %}
             <div class="consent-field">
                 <label for="{{ form.personal_data_consent.id_for_label }}">
                     {{ form.personal_data_consent }}
-                    {{ form.personal_data_consent.label }}
+                    Я даю согласие на обработку моих персональных данных.
                 </label>
-                {% if site_settings.personal_data_policy_url %}
-                    <a href="{{ site_settings.personal_data_policy_url }}" target="_blank" rel="noopener">{{ site_settings.personal_data_policy_link_text }}</a>
-                {% endif %}
+                <button type="button" class="btn-link" id="open-consent-dialog">Открыть согласие</button>
                 {% for error in form.personal_data_consent.errors %}<div class="errorlist">{{ error }}</div>{% endfor %}
             </div>
         {% endif %}
+
         <div class="nav-buttons">
-            <form method="post" action="{% url 'survey_contacts_anonymous' session.uuid %}">
-                {% csrf_token %}
-                <button type="submit" class="btn-secondary">Продолжить анонимно</button>
-            </form>
+            <span></span>
             <button type="submit" class="btn-secondary" style="background: var(--primary); color: #fff; border: none;">Получить отчёт</button>
         </div>
     </form>
+
+    <form method="post" action="{% url 'survey_contacts_anonymous' session.uuid %}" class="anonymous-form">
+        {% csrf_token %}
+        <button type="submit" class="btn-secondary">Продолжить анонимно</button>
+    </form>
 </div>
+
+{% if form.personal_data_consent %}
+<dialog id="consent-dialog" class="consent-dialog" aria-labelledby="consent-dialog-title">
+    <div class="consent-dialog__header">
+        <h2 id="consent-dialog-title">Согласие на обработку персональных данных</h2>
+        <button type="button" class="consent-dialog__close" aria-label="Закрыть">×</button>
+    </div>
+    <div class="consent-dialog__body">{{ site_settings.personal_data_consent_text|linebreaks }}</div>
+    <div class="consent-dialog__footer">
+        <button type="button" class="btn-secondary" id="close-consent-dialog">Закрыть</button>
+    </div>
+</dialog>
+<script>
+    (function () {
+        const dialog = document.getElementById("consent-dialog");
+        const openButton = document.getElementById("open-consent-dialog");
+        const closeButton = document.getElementById("close-consent-dialog");
+        const closeIcon = dialog.querySelector(".consent-dialog__close");
+
+        openButton.addEventListener("click", function () { dialog.showModal(); });
+        closeButton.addEventListener("click", function () { dialog.close(); });
+        closeIcon.addEventListener("click", function () { dialog.close(); });
+        dialog.addEventListener("click", function (event) {
+            if (event.target === dialog) { dialog.close(); }
+        });
+    }());
+</script>
+{% endif %}
 {% endblock %}
