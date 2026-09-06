@@ -1,5 +1,174 @@
 {% extends "base.html" %}
 {% block content %}
+<style>
+    .consent-field {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px 12px;
+        margin: 20px 0 8px;
+        padding: 14px 16px;
+        background: #f8f8f8;
+        border: 1px solid #e6e6e6;
+        border-radius: 10px;
+        color: #202020;
+        font-size: 14px;
+        line-height: 1.45;
+    }
+
+    .consent-field label {
+        display: inline-flex;
+        align-items: flex-start;
+        gap: 8px;
+        margin: 0;
+        cursor: pointer;
+    }
+
+    .consent-field input[type="checkbox"] {
+        width: 17px;
+        height: 17px;
+        margin: 2px 0 0;
+        accent-color: var(--primary);
+        flex: 0 0 auto;
+    }
+
+    .consent-link {
+        padding: 0;
+        border: 0;
+        background: transparent;
+        color: var(--primary);
+        font: inherit;
+        font-weight: 600;
+        text-decoration: underline;
+        text-underline-offset: 3px;
+        cursor: pointer;
+    }
+
+    .consent-link:hover,
+    .consent-link:focus-visible {
+        color: #a8040d;
+    }
+
+    .anonymous-form {
+        margin-top: 12px;
+        text-align: left;
+    }
+
+    .anonymous-form .btn-secondary {
+        background: transparent;
+        color: #4c4c4c;
+        border-color: #b9b9b9;
+    }
+
+    .consent-dialog {
+        width: min(680px, calc(100vw - 32px));
+        max-height: min(76vh, 720px);
+        padding: 0;
+        border: 0;
+        border-radius: 16px;
+        box-shadow: 0 24px 72px rgba(0, 0, 0, 0.26);
+        color: #202020;
+        overflow: hidden;
+    }
+
+    .consent-dialog::backdrop {
+        background: rgba(20, 20, 20, 0.58);
+        backdrop-filter: blur(2px);
+    }
+
+    .consent-dialog__header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 24px 24px 18px;
+        border-top: 5px solid var(--primary);
+        border-bottom: 1px solid #ececec;
+    }
+
+    .consent-dialog__header h2 {
+        margin: 0;
+        font-size: 22px;
+        line-height: 1.25;
+        color: #151515;
+    }
+
+    .consent-dialog__close {
+        display: inline-grid;
+        place-items: center;
+        width: 34px;
+        height: 34px;
+        padding: 0;
+        border: 1px solid #dedede;
+        border-radius: 50%;
+        background: #fff;
+        color: #4a4a4a;
+        font-size: 24px;
+        line-height: 1;
+        cursor: pointer;
+        flex: 0 0 auto;
+    }
+
+    .consent-dialog__close:hover,
+    .consent-dialog__close:focus-visible {
+        color: #fff;
+        background: var(--primary);
+        border-color: var(--primary);
+    }
+
+    .consent-dialog__body {
+        max-height: calc(min(76vh, 720px) - 180px);
+        padding: 22px 24px;
+        overflow-y: auto;
+        font-size: 15px;
+        line-height: 1.6;
+    }
+
+    .consent-dialog__body p {
+        margin: 0 0 14px;
+    }
+
+    .consent-dialog__body p:last-child {
+        margin-bottom: 0;
+    }
+
+    .consent-dialog__footer {
+        display: flex;
+        justify-content: flex-end;
+        padding: 16px 24px 22px;
+        border-top: 1px solid #ececec;
+        background: #fafafa;
+    }
+
+    .consent-dialog__footer .btn-secondary {
+        min-width: 128px;
+        color: #fff;
+        background: var(--primary);
+        border-color: var(--primary);
+    }
+
+    @media (max-width: 560px) {
+        .consent-field {
+            align-items: flex-start;
+        }
+
+        .consent-link {
+            margin-left: 25px;
+        }
+
+        .consent-dialog__header,
+        .consent-dialog__body,
+        .consent-dialog__footer {
+            padding-left: 18px;
+            padding-right: 18px;
+        }
+
+        .consent-dialog__header h2 {
+            font-size: 19px;
+        }
+    }
+</style>
+
 <div class="card">
     <h2 class="question-title">Оставьте контакты, чтобы получить отчёт</h2>
     <p class="question-subtitle">Мы сформируем ваш персональный отчёт с рисками и рекомендациями.</p>
@@ -19,9 +188,9 @@
             <div class="consent-field">
                 <label for="{{ form.personal_data_consent.id_for_label }}">
                     {{ form.personal_data_consent }}
-                    Я даю согласие на обработку моих персональных данных.
+                    <span>Я даю согласие на обработку моих персональных данных.</span>
                 </label>
-                <button type="button" class="btn-link" id="open-consent-dialog">Открыть согласие</button>
+                <button type="button" class="consent-link" id="open-consent-dialog">Открыть согласие</button>
                 {% for error in form.personal_data_consent.errors %}<div class="errorlist">{{ error }}</div>{% endfor %}
             </div>
         {% endif %}
