@@ -7,12 +7,29 @@
     <form method="post">
         {% csrf_token %}
         {% for field in form %}
-            <label class="field-label">{{ field.label }}{% if field.field.required %} *{% endif %}</label>
-            {{ field }}
-            {% for error in field.errors %}<div class="errorlist">{{ error }}</div>{% endfor %}
+            {% if field.name != "personal_data_consent" %}
+                <label class="field-label" for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} *{% endif %}</label>
+                {{ field }}
+                {% for error in field.errors %}<div class="errorlist">{{ error }}</div>{% endfor %}
+            {% endif %}
         {% endfor %}
+        {% if form.personal_data_consent %}
+            <div class="consent-field">
+                <label for="{{ form.personal_data_consent.id_for_label }}">
+                    {{ form.personal_data_consent }}
+                    {{ form.personal_data_consent.label }}
+                </label>
+                {% if site_settings.personal_data_policy_url %}
+                    <a href="{{ site_settings.personal_data_policy_url }}" target="_blank" rel="noopener">{{ site_settings.personal_data_policy_link_text }}</a>
+                {% endif %}
+                {% for error in form.personal_data_consent.errors %}<div class="errorlist">{{ error }}</div>{% endfor %}
+            </div>
+        {% endif %}
         <div class="nav-buttons">
-            <span></span>
+            <form method="post" action="{% url 'survey_contacts_anonymous' session.uuid %}">
+                {% csrf_token %}
+                <button type="submit" class="btn-secondary">Продолжить анонимно</button>
+            </form>
             <button type="submit" class="btn-secondary" style="background: var(--primary); color: #fff; border: none;">Получить отчёт</button>
         </div>
     </form>

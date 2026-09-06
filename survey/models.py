@@ -41,7 +41,7 @@ class AnswerOption(models.Model):
     text = models.CharField("Текст варианта", max_length=255)
     order = models.PositiveIntegerField("Порядок", default=0)
     risk_tags = models.ManyToManyField(
-        "risks.RiskCategory", verbose_name="Теги категорий риска", blank=True, related_name="answer_options",
+        "risks.RiskCategory", verbose_name="Теги категорий риска", blank=True, related_name="answer_options"
     )
     score_weight = models.IntegerField("Вес для скоринга", default=0)
 
@@ -65,6 +65,8 @@ class SurveySession(models.Model):
     visitor_position = models.CharField("Должность", max_length=255, blank=True, null=True)
     visitor_email = models.EmailField("E-mail", blank=True, null=True)
     visitor_phone = models.CharField("Телефон", max_length=50, blank=True, null=True)
+    personal_data_consent = models.BooleanField("Согласие на обработку персональных данных", default=False)
+    personal_data_consent_at = models.DateTimeField("Время согласия на обработку персональных данных", null=True, blank=True)
 
     class Meta:
         verbose_name = "Сессия опроса"
