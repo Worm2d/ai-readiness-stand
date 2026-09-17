@@ -37,6 +37,7 @@
     {% for rec in recommendations %}<div class="recommendation-item">• <strong>{{ rec.title }}</strong> — {{ rec.description }}</div>{% endfor %}
 </div>
 
+{% if services %}
 <h3 class="section-title">Услуги {{ site_settings.company_name }}</h3>
 {% for service in services %}
 <div class="service-card">
@@ -45,3 +46,4 @@
     <a href="{{ service.url }}" target="_blank" rel="noopener" class="btn-secondary">Подробнее</a>
 </div>
 {% endfor %}
+{% endif %}

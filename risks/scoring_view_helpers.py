@@ -17,12 +17,11 @@ def build_report_context(session):
         relevant_category_ids.update(risk.categories.values_list("id", flat=True))
 
     services_qs = Service.objects.filter(is_active=True).prefetch_related("category")
+    services = []
     if relevant_category_ids:
-        services = list(services_qs.filter(category__id__in=relevant_category_ids).distinct().order_by("order"))
-        if not services:
-            services = list(services_qs.order_by("order"))
-    else:
-        services = list(services_qs.order_by("order"))
+        services = list(
+            services_qs.filter(category__id__in=relevant_category_ids).distinct().order_by("order")
+        )
 
     recommendations = Recommendation.objects.filter(is_active=True).order_by("order")
 

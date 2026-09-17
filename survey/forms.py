@@ -11,6 +11,15 @@ class ContactForm(forms.Form):
     visitor_email = forms.EmailField(label="E-mail", required=False)
     visitor_phone = forms.CharField(label="Телефон", max_length=50, required=False)
 
+    def __init__(self, *args, require_consent=False, consent_label="", **kwargs):
+        super().__init__(*args, **kwargs)
+        if require_consent:
+            self.fields["personal_data_consent"] = forms.BooleanField(
+                label=consent_label,
+                required=True,
+                error_messages={"required": "Для отправки контактов необходимо согласие на обработку персональных данных."},
+            )
+
     def clean(self):
         cleaned = super().clean()
         if not cleaned.get("visitor_email") and not cleaned.get("visitor_phone"):
@@ -27,16 +36,16 @@ def build_question_form(question: Question, data=None):
     if question.question_type == "single_choice":
         choices = [(str(opt.id), opt.text) for opt in question.options.all().order_by("order")]
         DynamicQuestionForm.base_fields["answer"] = forms.ChoiceField(
-            choices=choices, required=required, widget=forms.RadioSelect, label=question.title,
+            choices=choices, required=required, widget=forms.RadioSelect, label=question.title
         )
     elif question.question_type == "multiple_choice":
         choices = [(str(opt.id), opt.text) for opt in question.options.all().order_by("order")]
         DynamicQuestionForm.base_fields["answer"] = forms.MultipleChoiceField(
-            choices=choices, required=required, widget=forms.CheckboxSelectMultiple, label=question.title,
+            choices=choices, required=required, widget=forms.CheckboxSelectMultiple, label=question.title
         )
     elif question.question_type == "text_input":
         DynamicQuestionForm.base_fields["answer"] = forms.CharField(
-            required=required, widget=forms.Textarea(attrs={"rows": 4}), label=question.title,
+            required=required, widget=forms.Textarea(attrs={"rows": 4}), label=question.title
         )
     elif question.question_type == "number_input":
         field_kwargs = {"required": required, "label": question.title}
