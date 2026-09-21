@@ -5,26 +5,11 @@ from .models import Question
 
 
 class ContactForm(forms.Form):
-    visitor_name = forms.CharField(label="Имя", max_length=255, required=True)
-    visitor_company = forms.CharField(label="Компания", max_length=255, required=True)
+    visitor_name = forms.CharField(label="Имя", max_length=255, required=False)
+    visitor_company = forms.CharField(label="Компания", max_length=255, required=False)
     visitor_position = forms.CharField(label="Должность", max_length=255, required=False)
-    visitor_email = forms.EmailField(label="E-mail", required=False)
+    visitor_email = forms.EmailField(label="E-mail", required=True)
     visitor_phone = forms.CharField(label="Телефон", max_length=50, required=False)
-
-    def __init__(self, *args, require_consent=False, consent_label="", **kwargs):
-        super().__init__(*args, **kwargs)
-        if require_consent:
-            self.fields["personal_data_consent"] = forms.BooleanField(
-                label=consent_label,
-                required=True,
-                error_messages={"required": "Для отправки контактов необходимо согласие на обработку персональных данных."},
-            )
-
-    def clean(self):
-        cleaned = super().clean()
-        if not cleaned.get("visitor_email") and not cleaned.get("visitor_phone"):
-            raise forms.ValidationError("Укажите e-mail или телефон для связи.")
-        return cleaned
 
 
 def build_question_form(question: Question, data=None):

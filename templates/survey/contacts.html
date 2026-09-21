@@ -1,11 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 <style>
-    .consent-field {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        gap: 8px 12px;
+    .consent-note {
         margin: 20px 0 8px;
         padding: 14px 16px;
         background: #f8f8f8;
@@ -13,23 +9,7 @@
         border-radius: 10px;
         color: #202020;
         font-size: 14px;
-        line-height: 1.45;
-    }
-
-    .consent-field label {
-        display: inline-flex;
-        align-items: flex-start;
-        gap: 8px;
-        margin: 0;
-        cursor: pointer;
-    }
-
-    .consent-field input[type="checkbox"] {
-        width: 17px;
-        height: 17px;
-        margin: 2px 0 0;
-        accent-color: var(--primary);
-        flex: 0 0 auto;
+        line-height: 1.5;
     }
 
     .consent-link {
@@ -49,15 +29,8 @@
         color: #a8040d;
     }
 
-    .anonymous-form {
-        margin-top: 12px;
-        text-align: left;
-    }
-
-    .anonymous-form .btn-secondary {
-        background: transparent;
-        color: #4c4c4c;
-        border-color: #b9b9b9;
+    a.consent-link {
+        cursor: pointer;
     }
 
     .consent-dialog {
@@ -148,14 +121,6 @@
     }
 
     @media (max-width: 560px) {
-        .consent-field {
-            align-items: flex-start;
-        }
-
-        .consent-link {
-            margin-left: 25px;
-        }
-
         .consent-dialog__header,
         .consent-dialog__body,
         .consent-dialog__footer {
@@ -177,37 +142,30 @@
     <form method="post" id="contacts-form">
         {% csrf_token %}
         {% for field in form %}
-            {% if field.name != "personal_data_consent" %}
-                <label class="field-label" for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} *{% endif %}</label>
-                {{ field }}
-                {% for error in field.errors %}<div class="errorlist">{{ error }}</div>{% endfor %}
-            {% endif %}
+            <label class="field-label" for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} *{% endif %}</label>
+            {{ field }}
+            {% for error in field.errors %}<div class="errorlist">{{ error }}</div>{% endfor %}
         {% endfor %}
 
-        {% if form.personal_data_consent %}
-            <div class="consent-field">
-                <label for="{{ form.personal_data_consent.id_for_label }}">
-                    {{ form.personal_data_consent }}
-                    <span>Я даю согласие на обработку моих персональных данных.</span>
-                </label>
-                <button type="button" class="consent-link" id="open-consent-dialog">Открыть согласие</button>
-                {% for error in form.personal_data_consent.errors %}<div class="errorlist">{{ error }}</div>{% endfor %}
-            </div>
-        {% endif %}
+        <div class="consent-note">
+            Нажимая «Получить отчёт», Вы даёте своё
+            <a href="javascript:void(0)" class="consent-link" id="open-consent-dialog">согласие на обработку персональных данных</a>
+            и принимаете условия
+            {% if site_settings.privacy_policy_file %}
+                <a href="{{ site_settings.privacy_policy_file.url }}" class="consent-link" target="_blank" rel="noopener" download>Политики конфиденциальности</a>
+            {% else %}
+                Политики конфиденциальности
+            {% endif %}
+            .
+        </div>
 
         <div class="nav-buttons">
             <span></span>
             <button type="submit" class="btn-secondary" style="background: var(--primary); color: #fff; border: none;">Получить отчёт</button>
         </div>
     </form>
-
-    <form method="post" action="{% url 'survey_contacts_anonymous' session.uuid %}" class="anonymous-form">
-        {% csrf_token %}
-        <button type="submit" class="btn-secondary">Продолжить анонимно</button>
-    </form>
 </div>
 
-{% if form.personal_data_consent %}
 <dialog id="consent-dialog" class="consent-dialog" aria-labelledby="consent-dialog-title">
     <div class="consent-dialog__header">
         <h2 id="consent-dialog-title">Согласие на обработку персональных данных</h2>
@@ -233,5 +191,4 @@
         });
     }());
 </script>
-{% endif %}
 {% endblock %}

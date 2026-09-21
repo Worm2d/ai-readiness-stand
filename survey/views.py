@@ -126,19 +126,12 @@ class SurveyQuestionView(View):
 class SurveyContactsView(View):
     template_name = "survey/contacts.html"
 
-    def _get_form(self, request, site_settings):
-        return ContactForm(
-            request.POST or None,
-            require_consent=site_settings.require_personal_data_consent,
-            consent_label=site_settings.personal_data_consent_text,
-        )
-
     def get(self, request, session_uuid):
         session = get_object_or_404(SurveySession, uuid=session_uuid)
         if session.is_completed:
             return redirect("survey_result", session_uuid=session.uuid)
         site_settings = SiteSettings.load()
-        form = self._get_form(request, site_settings)
+        form = ContactForm()
         return render(
             request,
             self.template_name,
@@ -151,13 +144,14 @@ class SurveyContactsView(View):
             return redirect("survey_result", session_uuid=session.uuid)
 
         site_settings = SiteSettings.load()
-        form = self._get_form(request, site_settings)
+        form = ContactForm(request.POST)
         if form.is_valid():
             for field in ["visitor_name", "visitor_company", "visitor_position", "visitor_email", "visitor_phone"]:
                 setattr(session, field, form.cleaned_data.get(field))
-            if site_settings.require_personal_data_consent:
-                session.personal_data_consent = True
-                session.personal_data_consent_at = timezone.now()
+            # Отправка формы «Получить отчёт» сама означает согласие на обработку ПД
+            # (текст согласия и ссылка на политику показаны прямо над кнопкой отправки).
+            session.personal_data_consent = True
+            session.personal_data_consent_at = timezone.now()
             session.score = calculate_score(session)
             session.is_completed = True
             session.finished_at = timezone.now()
@@ -169,17 +163,6 @@ class SurveyContactsView(View):
             self.template_name,
             {"form": form, "session": session, "site_settings": site_settings},
         )
-
-
-class SurveyAnonymousContinueView(View):
-    def post(self, request, session_uuid):
-        session = get_object_or_404(SurveySession, uuid=session_uuid)
-        if not session.is_completed:
-            session.score = calculate_score(session)
-            session.is_completed = True
-            session.finished_at = timezone.now()
-            session.save()
-        return redirect("survey_result", session_uuid=session.uuid)
 
 
 class SurveyResultView(View):
