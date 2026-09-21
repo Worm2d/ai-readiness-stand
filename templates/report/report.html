@@ -1,9 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
 {% include "report/_report_body.html" %}
-<div class="action-buttons">
-    <a href="{{ pdf_url }}" target="_blank" class="btn-big" style="font-size:18px; padding:16px 32px;">Скачать PDF</a>
-</div>
 <h3 class="section-title">Свяжитесь с {{ site_settings.company_name }}</h3>
 <div class="qr-block">
     <div style="text-align:center;">
@@ -15,4 +12,7 @@
         <p><a href="mailto:{{ site_settings.company_email }}">{{ site_settings.company_email }}</a></p>
     </div>
 </div>
+<p style="text-align:center; margin-top:20px; font-size:14px;">
+    <a href="https://icl-st.ru" target="_blank" rel="noopener">icl-st.ru</a>
+</p>
 {% endblock %}
