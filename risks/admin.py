@@ -12,13 +12,14 @@ class RiskCategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Risk)
 class RiskAdmin(admin.ModelAdmin):
-    list_display = ("title", "severity", "categories_list", "is_active", "order")
+    list_display = ("title", "tag", "severity", "categories_list", "is_active", "order")
     list_filter = ("severity", "is_active", "categories")
-    search_fields = ("title", "description", "public_case_title")
+    search_fields = ("title", "tag", "description", "public_case_title")
     filter_horizontal = ("categories",)
     ordering = ("order", "title")
     fieldsets = (
-        (None, {"fields": ("title", "description", "categories", "severity", "is_active", "order")}),
+        (None, {"fields": ("tag", "title", "description", "categories", "severity", "is_active", "order")}),
+        ("Митигация", {"fields": ("mitigation",)}),
         ("Публичный кейс", {"fields": ("public_case_title", "public_case_description", "public_case_source_url", "public_case_region")}),
         ("Связь с услугами", {"fields": ("related_service",)}),
     )
