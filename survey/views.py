@@ -20,12 +20,24 @@ class SurveyStartView(View):
 class SurveyQuestionView(View):
     template_name = "survey/question.html"
 
-    def _get_ordered_questions(self):
-        return list(Question.objects.filter(is_active=True).order_by("order"))
+    def _get_visible_questions(self, session):
+        """Возвращает вопросы, которые нужно показать ИМЕННО этой сессии,
+        с учётом условной логики (parent_question / show_only_if_parent_answered).
+        Порядок вопроса в этом списке определяет его "step" в навигации."""
+        all_questions = list(
+            Question.objects.filter(is_active=True)
+            .order_by("order")
+            .prefetch_related("show_only_if_parent_answered")
+        )
+        visible = []
+        for question in all_questions:
+            if question.is_visible_for_session(session):
+                visible.append(question)
+        return visible
 
     def get(self, request, session_uuid, step):
         session = get_object_or_404(SurveySession, uuid=session_uuid)
-        questions = self._get_ordered_questions()
+        questions = self._get_visible_questions(session)
         total = len(questions)
         if step < 1 or step > total:
             return redirect("landing")
@@ -35,7 +47,7 @@ class SurveyQuestionView(View):
 
     def post(self, request, session_uuid, step):
         session = get_object_or_404(SurveySession, uuid=session_uuid)
-        questions = self._get_ordered_questions()
+        questions = self._get_visible_questions(session)
         total = len(questions)
         question = questions[step - 1]
 
@@ -47,7 +59,20 @@ class SurveyQuestionView(View):
             return render(request, self.template_name, self._context(session, question, form, step, total))
 
         self._save_answer(session, question, form)
-        return self._go_next(session, step, total)
+
+        # После сохранения ответа состав видимых вопросов может измениться
+        # (открылись/закрылись зависимые вопросы) — пересчитываем список и
+        # ищем новую позицию текущего вопроса, чтобы step оставался консистентным.
+        updated_questions = self._get_visible_questions(session)
+        updated_total = len(updated_questions)
+        updated_step = self._resolve_step(updated_questions, question, step, updated_total)
+        return self._go_next(session, updated_step, updated_total)
+
+    def _resolve_step(self, questions, current_question, fallback_step, total):
+        for index, q in enumerate(questions, start=1):
+            if q.pk == current_question.pk:
+                return index
+        return min(fallback_step, total) if total else fallback_step
 
     def _save_answer(self, session, question, form):
         answer, _ = Answer.objects.get_or_create(session=session, question=question)

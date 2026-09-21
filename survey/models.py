@@ -1,6 +1,7 @@
 """Модели опроса: вопросы, варианты ответов, сессии прохождения, ответы."""
 import uuid
 
+from django.core.exceptions import ValidationError
 from django.db import models
 
 
@@ -23,6 +24,30 @@ class Question(models.Model):
     number_max = models.IntegerField("Максимум (для числового ответа)", null=True, blank=True)
     number_step = models.IntegerField("Шаг (для числового ответа)", null=True, blank=True, default=1)
 
+    parent_question = models.ForeignKey(
+        "self",
+        verbose_name="Родительский вопрос",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="dependent_questions",
+        help_text=(
+            "Если указан — этот вопрос будет показан только тогда, когда на родительский вопрос "
+            "дан один из вариантов, отмеченных ниже в поле «Показывать при ответах родителя»."
+        ),
+    )
+    show_only_if_parent_answered = models.ManyToManyField(
+        "AnswerOption",
+        verbose_name="Показывать при ответах родителя",
+        blank=True,
+        related_name="unlocks_questions",
+        help_text=(
+            "Варианты ответа родительского вопроса, при выборе КОТОРЫХ (любого из них) этот вопрос "
+            "будет показан. Варианты должны принадлежать выбранному родительскому вопросу. "
+            "Если поле пустое, условие не проверяется."
+        ),
+    )
+
     class Meta:
         verbose_name = "Вопрос"
         verbose_name_plural = "Вопросы опроса"
@@ -34,6 +59,32 @@ class Question(models.Model):
     @property
     def has_options(self):
         return self.question_type in ("single_choice", "multiple_choice")
+
+    def clean(self):
+        if self.parent_question_id and self.pk and self.parent_question_id == self.pk:
+            raise ValidationError("Вопрос не может быть родителем самому себе.")
+        if self.parent_question_id and self.order <= self.parent_question.order:
+            raise ValidationError(
+                "Зависимый вопрос должен идти в опросе позже своего родительского вопроса "
+                "(проверьте поле «Порядок показа»)."
+            )
+
+    def is_visible_for_session(self, session):
+        """Проверяет условие показа вопроса для конкретной сессии опроса."""
+        if not self.parent_question_id:
+            return True
+
+        required_option_ids = set(self.show_only_if_parent_answered.values_list("id", flat=True))
+        if not required_option_ids:
+            return True
+
+        try:
+            parent_answer = session.answers.get(question_id=self.parent_question_id)
+        except Answer.DoesNotExist:
+            return False
+
+        selected_ids = set(parent_answer.selected_options.values_list("id", flat=True))
+        return bool(selected_ids & required_option_ids)
 
 
 class AnswerOption(models.Model):
