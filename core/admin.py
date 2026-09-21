@@ -12,10 +12,8 @@ class SiteSettingsAdmin(admin.ModelAdmin):
             {
                 "fields": (
                     "collect_personal_data",
-                    "require_personal_data_consent",
                     "personal_data_consent_text",
-                    "personal_data_policy_url",
-                    "personal_data_policy_link_text",
+                    "privacy_policy_file",
                 )
             },
         ),
