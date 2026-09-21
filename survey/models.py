@@ -42,7 +42,7 @@ class Question(models.Model):
         blank=True,
         related_name="unlocks_questions",
         help_text=(
-            "Варианты ответа родительского вопроса, при выборе КОТОРЫХ (любого из них) этот вопрос "
+            "Варианты ответа родительского вопроса, при выборе КОторых (любого из них) этот вопрос "
             "будет показан. Варианты должны принадлежать выбранному родительскому вопросу. "
             "Если поле пустое, условие не проверяется."
         ),
@@ -92,7 +92,7 @@ class AnswerOption(models.Model):
     text = models.CharField("Текст варианта", max_length=255)
     order = models.PositiveIntegerField("Порядок", default=0)
     risk_tags = models.ManyToManyField(
-        "risks.RiskCategory", verbose_name="Теги категорий риска", blank=True, related_name="answer_options"
+        "risks.Risk", verbose_name="Риски, срабатывающие при этом ответе", blank=True, related_name="answer_options"
     )
     score_weight = models.IntegerField("Вес для скоринга", default=0)
 

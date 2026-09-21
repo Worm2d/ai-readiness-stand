@@ -4,12 +4,13 @@ from risks.models import Risk, ScoreInterpretation
 MIN_RISKS_IN_REPORT = 5
 
 
-def collect_selected_tags(session):
-    tag_ids = set()
-    for answer in session.answers.select_related("question").prefetch_related("selected_options__risk_tags"):
+def collect_triggered_risk_ids(session):
+    """Собирает ID рисков, напрямую привязанных к выбранным вариантам ответов сессии."""
+    risk_ids = set()
+    for answer in session.answers.prefetch_related("selected_options__risk_tags"):
         for option in answer.selected_options.all():
-            tag_ids.update(option.risk_tags.values_list("id", flat=True))
-    return tag_ids
+            risk_ids.update(option.risk_tags.values_list("id", flat=True))
+    return risk_ids
 
 
 def calculate_score(session):
@@ -46,11 +47,15 @@ def get_score_interpretation(score):
 
 
 def select_relevant_risks(session):
-    tag_ids = collect_selected_tags(session)
+    """Возвращает риски, напрямую сработавшие по тегам выбранных ответов.
+    Если сработавших рисков меньше MIN_RISKS_IN_REPORT, дополняет список
+    самыми приоритетными активными рисками (по критичности), чтобы отчёт
+    не выглядел пустым при малом числе отвеченных вопросов."""
+    risk_ids = collect_triggered_risk_ids(session)
     risks_qs = Risk.objects.filter(is_active=True).prefetch_related("categories", "related_service")
 
-    if tag_ids:
-        relevant = list(risks_qs.filter(categories__id__in=tag_ids).distinct().order_by("order", "-id"))
+    if risk_ids:
+        relevant = list(risks_qs.filter(id__in=risk_ids).order_by("order", "-id"))
     else:
         relevant = []
 

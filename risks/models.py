@@ -28,10 +28,15 @@ class Risk(models.Model):
         ("low", "Низкий"), ("medium", "Средний"), ("high", "Высокий"), ("critical", "Критический"),
     ]
 
+    tag = models.SlugField(
+        "Тег риска", max_length=64, unique=True, blank=True, null=True,
+        help_text="Уникальный код риска (например, PDN-PROMPT-LEAK), на который ссылаются варианты ответов опроса.",
+    )
     title = models.CharField("Название риска", max_length=255)
     description = models.TextField("Описание")
-    categories = models.ManyToManyField(RiskCategory, verbose_name="Категории", related_name="risks")
+    categories = models.ManyToManyField(RiskCategory, verbose_name="Категории", related_name="risks", blank=True)
     severity = models.CharField("Критичность", max_length=10, choices=SEVERITY_CHOICES, default="medium")
+    mitigation = models.TextField("Рекомендации по митигации", blank=True)
     public_case_title = models.CharField("Заголовок публичного кейса", max_length=255, blank=True)
     public_case_description = models.TextField("Описание инцидента / статистики", blank=True)
     public_case_source_url = models.URLField("Ссылка на источник", blank=True)
