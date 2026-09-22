@@ -14,6 +14,7 @@ class SiteSettingsAdmin(admin.ModelAdmin):
                     "collect_personal_data",
                     "personal_data_consent_text",
                     "privacy_policy_file",
+                    "show_question_counter",
                 )
             },
         ),
@@ -21,7 +22,25 @@ class SiteSettingsAdmin(admin.ModelAdmin):
             "Стартовая страница",
             {"fields": ("landing_title", "landing_subtitle", "button_text", "logo", "primary_color")},
         ),
-        ("Страница результата", {"fields": ("result_title", "qr_hint_text")}),
+        (
+            "Страница результата",
+            {"fields": ("result_title", "qr_hint_text", "show_score_block")},
+        ),
+        (
+            "Обязательная рекомендация (показывается всегда)",
+            {
+                "fields": (
+                    "always_recommendation_title",
+                    "always_recommendation_text",
+                    "always_recommendation_email_label",
+                    "always_recommendation_website_label",
+                )
+            },
+        ),
+        (
+            "Письмо с отчётом",
+            {"fields": ("email_subject", "email_body_template")},
+        ),
         ("Компания", {"fields": ("company_name", "company_website", "company_email", "footer_text")}),
     )
 
