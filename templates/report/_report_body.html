@@ -32,7 +32,11 @@
 
 <h3 class="section-title">Рекомендации</h3>
 <div class="card">
-    {% for rec in recommendations %}<div class="recommendation-item">• <strong>{{ rec.title }}</strong> — {{ rec.description }}</div>{% endfor %}
+    {% if recommendations %}
+        {% for rec in recommendations %}<div class="recommendation-item">• {{ rec.text|linebreaksbr }}</div>{% endfor %}
+    {% else %}
+        <p class="question-subtitle">Для выявленных рисков рекомендации по митигации не заданы.</p>
+    {% endif %}
 </div>
 
 {% if services %}

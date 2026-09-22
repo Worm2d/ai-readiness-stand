@@ -32,106 +32,6 @@
     a.consent-link {
         cursor: pointer;
     }
-
-    .consent-dialog {
-        width: min(680px, calc(100vw - 32px));
-        max-height: min(76vh, 720px);
-        padding: 0;
-        border: 0;
-        border-radius: 16px;
-        box-shadow: 0 24px 72px rgba(0, 0, 0, 0.26);
-        color: #202020;
-        overflow: hidden;
-    }
-
-    .consent-dialog::backdrop {
-        background: rgba(20, 20, 20, 0.58);
-        backdrop-filter: blur(2px);
-    }
-
-    .consent-dialog__header {
-        display: flex;
-        align-items: flex-start;
-        justify-content: space-between;
-        gap: 16px;
-        padding: 24px 24px 18px;
-        border-top: 5px solid var(--primary);
-        border-bottom: 1px solid #ececec;
-    }
-
-    .consent-dialog__header h2 {
-        margin: 0;
-        font-size: 22px;
-        line-height: 1.25;
-        color: #151515;
-    }
-
-    .consent-dialog__close {
-        display: inline-grid;
-        place-items: center;
-        width: 34px;
-        height: 34px;
-        padding: 0;
-        border: 1px solid #dedede;
-        border-radius: 50%;
-        background: #fff;
-        color: #4a4a4a;
-        font-size: 24px;
-        line-height: 1;
-        cursor: pointer;
-        flex: 0 0 auto;
-    }
-
-    .consent-dialog__close:hover,
-    .consent-dialog__close:focus-visible {
-        color: #fff;
-        background: var(--primary);
-        border-color: var(--primary);
-    }
-
-    .consent-dialog__body {
-        max-height: calc(min(76vh, 720px) - 180px);
-        padding: 22px 24px;
-        overflow-y: auto;
-        font-size: 15px;
-        line-height: 1.6;
-    }
-
-    .consent-dialog__body p {
-        margin: 0 0 14px;
-    }
-
-    .consent-dialog__body p:last-child {
-        margin-bottom: 0;
-    }
-
-    .consent-dialog__footer {
-        display: flex;
-        justify-content: flex-end;
-        padding: 16px 24px 22px;
-        border-top: 1px solid #ececec;
-        background: #fafafa;
-    }
-
-    .consent-dialog__footer .btn-secondary {
-        min-width: 128px;
-        color: #fff;
-        background: var(--primary);
-        border-color: var(--primary);
-    }
-
-    @media (max-width: 560px) {
-        .consent-dialog__header,
-        .consent-dialog__body,
-        .consent-dialog__footer {
-            padding-left: 18px;
-            padding-right: 18px;
-        }
-
-        .consent-dialog__header h2 {
-            font-size: 19px;
-        }
-    }
 </style>
 
 <div class="card">
@@ -148,8 +48,7 @@
         {% endfor %}
 
         <div class="consent-note">
-            Нажимая «Получить отчёт», Вы даёте своё
-            <a href="javascript:void(0)" class="consent-link" id="open-consent-dialog">согласие на обработку персональных данных</a>
+            Нажимая «Получить отчёт», Вы даёте своё согласие на обработку персональных данных
             и принимаете условия
             {% if site_settings.privacy_policy_file %}
                 <a href="{{ site_settings.privacy_policy_file.url }}" class="consent-link" target="_blank" rel="noopener" download>Политики конфиденциальности</a>
@@ -165,30 +64,4 @@
         </div>
     </form>
 </div>
-
-<dialog id="consent-dialog" class="consent-dialog" aria-labelledby="consent-dialog-title">
-    <div class="consent-dialog__header">
-        <h2 id="consent-dialog-title">Согласие на обработку персональных данных</h2>
-        <button type="button" class="consent-dialog__close" aria-label="Закрыть">×</button>
-    </div>
-    <div class="consent-dialog__body">{{ site_settings.personal_data_consent_text|linebreaks }}</div>
-    <div class="consent-dialog__footer">
-        <button type="button" class="btn-secondary" id="close-consent-dialog">Закрыть</button>
-    </div>
-</dialog>
-<script>
-    (function () {
-        const dialog = document.getElementById("consent-dialog");
-        const openButton = document.getElementById("open-consent-dialog");
-        const closeButton = document.getElementById("close-consent-dialog");
-        const closeIcon = dialog.querySelector(".consent-dialog__close");
-
-        openButton.addEventListener("click", function () { dialog.showModal(); });
-        closeButton.addEventListener("click", function () { dialog.close(); });
-        closeIcon.addEventListener("click", function () { dialog.close(); });
-        dialog.addEventListener("click", function (event) {
-            if (event.target === dialog) { dialog.close(); }
-        });
-    }());
-</script>
 {% endblock %}

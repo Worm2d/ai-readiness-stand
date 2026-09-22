@@ -2,8 +2,22 @@
 from core.models import SiteSettings
 from services.models import Service
 
-from .models import Recommendation
 from survey.scoring import calculate_score, get_score_interpretation, select_relevant_risks
+
+
+def _collect_mitigation_recommendations(risks):
+    """Собирает рекомендации по митигации из risk.mitigation для переданных рисков,
+    исключая дубли (одна и та же рекомендация может закрывать несколько рисков —
+    в отчёте она должна быть показана один раз) и сохраняя порядок первого появления."""
+    seen = set()
+    recommendations = []
+    for risk in risks:
+        text = (risk.mitigation or "").strip()
+        if not text or text in seen:
+            continue
+        seen.add(text)
+        recommendations.append({"risk_title": risk.title, "text": text})
+    return recommendations
 
 
 def build_report_context(session):
@@ -23,7 +37,7 @@ def build_report_context(session):
             services_qs.filter(category__id__in=relevant_category_ids).distinct().order_by("order")
         )
 
-    recommendations = Recommendation.objects.filter(is_active=True).order_by("order")
+    recommendations = _collect_mitigation_recommendations(risks)
 
     return {
         "site_settings": site_settings,

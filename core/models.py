@@ -14,7 +14,7 @@ class SiteSettings(models.Model):
     personal_data_consent_text = models.TextField(
         "Текст согласия на обработку персональных данных",
         default="Я даю согласие на обработку моих персональных данных для подготовки и отправки отчёта.",
-        help_text="Показывается во всеплывающем окне при переходе по ссылке «согласие на обработку персональных данных».",
+        help_text="Служебное поле. Используется как запасной текст согласия, если потребуется вернуть отдельное окно.",
     )
     privacy_policy_file = models.FileField(
         "Файл политики конфиденциальности",
@@ -46,6 +46,12 @@ class SiteSettings(models.Model):
         "Заголовок страницы результата",
         max_length=255,
         default="Вы не готовы, но мы можем Вам помочь",
+    )
+    qr_hint_text = models.CharField(
+        "Текст подсказки под QR-кодом отчёта",
+        max_length=255,
+        default="Отсканируйте, чтобы открыть отчёт на телефоне",
+        help_text="Показывается под QR-кодом на странице результата опроса.",
     )
     company_name = models.CharField("Название компании", max_length=255, default="ICL Системные технологии")
     company_website = models.URLField("Сайт компании", default="https://icl-st.ru/")

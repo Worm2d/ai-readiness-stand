@@ -3,7 +3,7 @@
 <div class="qr-block">
     <div style="text-align:center;">
         <img src="{{ report_qr }}" alt="QR-код на отчёт">
-        <p style="font-size:13px; color:#666;">Отсканируйте, чтобы открыть отчёт на телефоне</p>
+        <p style="font-size:13px; color:#666;">{{ site_settings.qr_hint_text }}</p>
     </div>
 </div>
 {% include "report/_report_body.html" %}
