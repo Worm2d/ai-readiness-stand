@@ -2,7 +2,9 @@
 {% block content %}
 <div class="landing-screen">
     {% if settings.logo %}
-        <img src="{{ settings.logo.url }}" alt="{{ settings.company_name }}" class="logo">
+        <a href="{{ settings.company_website }}" target="_blank" rel="noopener">
+            <img src="{{ settings.logo.url }}" alt="{{ settings.company_name }}" class="logo">
+        </a>
     {% else %}
         <h2 style="color: var(--primary);"><a href="{{ settings.company_website }}" target="_blank" rel="noopener" style="color: inherit; text-decoration: none;">{{ settings.company_name }}</a></h2>
     {% endif %}

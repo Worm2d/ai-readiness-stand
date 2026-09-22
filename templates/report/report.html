@@ -3,7 +3,9 @@
 {% include "report/_report_body.html" %}
 {% if site_settings.logo %}
 <div style="text-align:center; margin-top:24px;">
-    <img src="{{ site_settings.logo.url }}" alt="{{ site_settings.company_name }}" class="logo" style="max-height:60px; margin-bottom:0;">
+    <a href="{{ site_settings.company_website }}" target="_blank" rel="noopener">
+        <img src="{{ site_settings.logo.url }}" alt="{{ site_settings.company_name }}" class="logo" style="max-height:60px; margin-bottom:0;">
+    </a>
 </div>
 {% endif %}
 {% endblock %}

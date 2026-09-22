@@ -1,4 +1,4 @@
-{% load static %}<!DOCTYPE html>
+{% load static %}{% load core_filters %}<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -14,7 +14,7 @@
             {% block content %}{% endblock %}
         </div>
     </div>
-    <div class="footer">{{ site_settings.footer_text }}</div>
+    <div class="footer">{{ site_settings.footer_text|linkify_company:site_settings }}</div>
     <script src="{% static 'js/main.js' %}"></script>
 </body>
 </html>
