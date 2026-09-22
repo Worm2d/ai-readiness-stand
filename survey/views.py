@@ -20,59 +20,86 @@ class SurveyStartView(View):
 class SurveyQuestionView(View):
     template_name = "survey/question.html"
 
-    def _get_visible_questions(self, session):
-        """Возвращает вопросы, которые нужно показать ИМЕННО этой сессии,
-        с учётом условной логики (parent_question / show_only_if_parent_answered).
-        Порядок вопроса в этом списке определяет его "step" в навигации."""
-        all_questions = list(
+    def _get_all_questions(self):
+        """Полный список активных вопросов в порядке показа. Это ФИКСИРОВАНный
+        список: именно по нему считается "step" в URL и общий "total" в счётчике
+        прогресса, независимо от того, видны ли конкретной сессии условные вопросы."""
+        return list(
             Question.objects.filter(is_active=True)
             .order_by("order")
             .prefetch_related("show_only_if_parent_answered")
         )
-        visible = []
-        for question in all_questions:
-            if question.is_visible_for_session(session):
-                visible.append(question)
-        return visible
+
+    def _get_visible_questions(self, session, all_questions=None):
+        """Подмножество all_questions, которые нужно реально показать ИМЕННО
+        этой сессии, с учётом условной логики (parent_question /
+        show_only_if_parent_answered)."""
+        all_questions = all_questions if all_questions is not None else self._get_all_questions()
+        return [q for q in all_questions if q.is_visible_for_session(session)]
+
+    def _resolve_step_to_question(self, all_questions, visible_questions, step):
+        """Находит вопрос для данного step. step всегда — позиция в ПОЛНОМ
+        списке активных вопросов (all_questions), но если вопрос под этим
+        step скрыт условной логикой для сессии, мы идём вперёд/назад по
+        all_questions до первого видимого вопроса — так реализуются "перескоки"."""
+        if step < 1 or step > len(all_questions):
+            return None, None
+
+        visible_ids = {q.pk for q in visible_questions}
+        index = step - 1
+
+        if all_questions[index].pk in visible_ids:
+            return all_questions[index], step
+
+        for i in range(index, len(all_questions)):
+            if all_questions[i].pk in visible_ids:
+                return all_questions[i], i + 1
+
+        for i in range(index, -1, -1):
+            if all_questions[i].pk in visible_ids:
+                return all_questions[i], i + 1
+
+        return None, None
 
     def get(self, request, session_uuid, step):
         session = get_object_or_404(SurveySession, uuid=session_uuid)
-        questions = self._get_visible_questions(session)
-        total = len(questions)
-        if step < 1 or step > total:
+        all_questions = self._get_all_questions()
+        total = len(all_questions)
+        visible_questions = self._get_visible_questions(session, all_questions)
+
+        question, resolved_step = self._resolve_step_to_question(all_questions, visible_questions, step)
+        if question is None:
             return redirect("landing")
-        question = questions[step - 1]
+        if resolved_step != step:
+            return redirect("survey_question", session_uuid=session.uuid, step=resolved_step)
+
         form = build_question_form(question)
-        return render(request, self.template_name, self._context(session, question, form, step, total))
+        return render(request, self.template_name, self._context(session, question, form, resolved_step, total))
 
     def post(self, request, session_uuid, step):
         session = get_object_or_404(SurveySession, uuid=session_uuid)
-        questions = self._get_visible_questions(session)
-        total = len(questions)
-        question = questions[step - 1]
+        all_questions = self._get_all_questions()
+        total = len(all_questions)
+        visible_questions = self._get_visible_questions(session, all_questions)
+
+        question, resolved_step = self._resolve_step_to_question(all_questions, visible_questions, step)
+        if question is None:
+            return redirect("landing")
 
         if question.question_type == "info_text":
-            return self._go_next(session, step, total)
+            return self._go_next(session, all_questions, resolved_step, total)
 
         form = build_question_form(question, data=request.POST)
         if not form.is_valid():
-            return render(request, self.template_name, self._context(session, question, form, step, total))
+            return render(request, self.template_name, self._context(session, question, form, resolved_step, total))
 
         self._save_answer(session, question, form)
 
         # После сохранения ответа состав видимых вопросов может измениться
-        # (открылись/закрылись зависимые вопросы) — пересчитываем список и
-        # ищем новую позицию текущего вопроса, чтобы step оставался консистентным.
-        updated_questions = self._get_visible_questions(session)
-        updated_total = len(updated_questions)
-        updated_step = self._resolve_step(updated_questions, question, step, updated_total)
-        return self._go_next(session, updated_step, updated_total)
-
-    def _resolve_step(self, questions, current_question, fallback_step, total):
-        for index, q in enumerate(questions, start=1):
-            if q.pk == current_question.pk:
-                return index
-        return min(fallback_step, total) if total else fallback_step
+        # (открылись/закрылись зависимые вопросы), но total и нумерация step
+        # всегда считаются по полному списку all_questions — поэтому "Вопрос X
+        # из N" стабилен, а переходы просто перескакивают скрытые вопросы.
+        return self._go_next(session, all_questions, resolved_step, total)
 
     def _save_answer(self, session, question, form):
         answer, _ = Answer.objects.get_or_create(session=session, question=question)
@@ -92,10 +119,15 @@ class SurveyQuestionView(View):
 
         answer.save()
 
-    def _go_next(self, session, step, total):
-        if step >= total:
-            return self._finish_survey(session)
-        return redirect("survey_question", session_uuid=session.uuid, step=step + 1)
+    def _go_next(self, session, all_questions, step, total):
+        """Ищет следующий видимый вопрос начиная со step+1 по полному списку
+        all_questions (пересчитанному без кэша видимости — after-save состояние
+        уже отражает только что сохранённый ответ)."""
+        for next_step in range(step + 1, total + 1):
+            candidate = all_questions[next_step - 1]
+            if candidate.is_visible_for_session(session):
+                return redirect("survey_question", session_uuid=session.uuid, step=next_step)
+        return self._finish_survey(session)
 
     def _finish_survey(self, session):
         site_settings = SiteSettings.load()
