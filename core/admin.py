@@ -21,7 +21,7 @@ class SiteSettingsAdmin(admin.ModelAdmin):
             "Стартовая страница",
             {"fields": ("landing_title", "landing_subtitle", "button_text", "logo", "primary_color")},
         ),
-        ("Страница результата", {"fields": ("result_title",)}),
+        ("Страница результата", {"fields": ("result_title", "qr_hint_text")}),
         ("Компания", {"fields": ("company_name", "company_website", "company_email", "footer_text")}),
     )
 

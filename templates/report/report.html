@@ -12,7 +12,9 @@
         <p><a href="mailto:{{ site_settings.company_email }}">{{ site_settings.company_email }}</a></p>
     </div>
 </div>
-<p style="text-align:center; margin-top:20px; font-size:14px;">
-    <a href="https://icl-st.ru" target="_blank" rel="noopener">icl-st.ru</a>
-</p>
+{% if site_settings.logo %}
+<div style="text-align:center; margin-top:24px;">
+    <img src="{{ site_settings.logo.url }}" alt="{{ site_settings.company_name }}" class="logo" style="max-height:60px; margin-bottom:0;">
+</div>
+{% endif %}
 {% endblock %}

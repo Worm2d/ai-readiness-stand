@@ -31,13 +31,18 @@
 {% endfor %}
 
 <h3 class="section-title">Рекомендации</h3>
+{% if recommendations %}
+    {% for rec in recommendations %}
+    <div class="recommendation-item">
+        <span class="recommendation-marker">{{ forloop.counter }}</span>
+        <div class="recommendation-text">{{ rec.text|linebreaksbr }}</div>
+    </div>
+    {% endfor %}
+{% else %}
 <div class="card">
-    {% if recommendations %}
-        {% for rec in recommendations %}<div class="recommendation-item">• {{ rec.text|linebreaksbr }}</div>{% endfor %}
-    {% else %}
-        <p class="question-subtitle">Для выявленных рисков рекомендации по митигации не заданы.</p>
-    {% endif %}
+    <p class="question-subtitle">Для выявленных рисков рекомендации по митигации не заданы.</p>
 </div>
+{% endif %}
 
 {% if services %}
 <h3 class="section-title">Услуги {{ site_settings.company_name }}</h3>
