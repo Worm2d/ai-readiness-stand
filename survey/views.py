@@ -35,11 +35,24 @@ class SurveyQuestionView(View):
                 visible.append(question)
         return visible
 
+    def _get_display_total(self, session, computed_total):
+        """Счётчик "Вопрос X из N" не должен уменьшаться в рамках одной сессии:
+        как только условный вопрос стал виден (пользователь ответил родительскому вопросу
+        соответствующим образом), N увеличивается и больше не падает обратно,
+        даже если пользователь вернётся и поменяет ответ на родительский вопрос."""
+        previous_max = session.max_questions_seen or 0
+        new_max = max(previous_max, computed_total)
+        if new_max != previous_max:
+            session.max_questions_seen = new_max
+            session.save(update_fields=["max_questions_seen"])
+        return new_max
+
     def get(self, request, session_uuid, step):
         session = get_object_or_404(SurveySession, uuid=session_uuid)
         questions = self._get_visible_questions(session)
-        total = len(questions)
-        if step < 1 or step > total:
+        computed_total = len(questions)
+        total = self._get_display_total(session, computed_total)
+        if step < 1 or step > computed_total:
             return redirect("landing")
         question = questions[step - 1]
         form = build_question_form(question)
@@ -48,14 +61,16 @@ class SurveyQuestionView(View):
     def post(self, request, session_uuid, step):
         session = get_object_or_404(SurveySession, uuid=session_uuid)
         questions = self._get_visible_questions(session)
-        total = len(questions)
+        computed_total = len(questions)
         question = questions[step - 1]
 
         if question.question_type == "info_text":
-            return self._go_next(session, step, total)
+            self._get_display_total(session, computed_total)
+            return self._go_next(session, step, computed_total)
 
         form = build_question_form(question, data=request.POST)
         if not form.is_valid():
+            total = self._get_display_total(session, computed_total)
             return render(request, self.template_name, self._context(session, question, form, step, total))
 
         self._save_answer(session, question, form)
@@ -65,6 +80,7 @@ class SurveyQuestionView(View):
         # ищем новую позицию текущего вопроса, чтобы step оставался консистентным.
         updated_questions = self._get_visible_questions(session)
         updated_total = len(updated_questions)
+        self._get_display_total(session, updated_total)
         updated_step = self._resolve_step(updated_questions, question, step, updated_total)
         return self._go_next(session, updated_step, updated_total)
 
