@@ -1,6 +1,7 @@
 <div class="card">
     <h2 class="question-title">Отчёт</h2>
     <p class="question-subtitle">{{ result_title }}</p>
+    {% if site_settings.show_score_block %}
     <div class="score-gauge-wrap">
         <div class="score-value">{{ score }}/100</div>
         <div class="progress-wrap"><div class="progress-bar" style="width: {{ score }}%; background: {% if interpretation %}{{ interpretation.color }}{% else %}var(--primary){% endif %};"></div></div>
@@ -9,6 +10,7 @@
             <p>{{ interpretation.description }}</p>
         {% endif %}
     </div>
+    {% endif %}
 </div>
 
 <h3 class="section-title">Выявленные риски</h3>
@@ -41,6 +43,23 @@
 {% else %}
 <div class="card">
     <p class="question-subtitle">Для выявленных рисков рекомендации по митигации не заданы.</p>
+</div>
+{% endif %}
+
+{% if site_settings.always_recommendation_title and site_settings.always_recommendation_text %}
+<div class="always-recommendation">
+    <div class="always-recommendation-title">{{ site_settings.always_recommendation_title }}</div>
+    <p class="always-recommendation-text">{{ site_settings.always_recommendation_text|linebreaksbr }}</p>
+    <div class="always-recommendation-contacts">
+        <div class="always-recommendation-contact">
+            <span class="always-recommendation-label">{{ site_settings.always_recommendation_email_label }}</span>
+            <a href="mailto:{{ site_settings.company_email }}">{{ site_settings.company_email }}</a>
+        </div>
+        <div class="always-recommendation-contact">
+            <span class="always-recommendation-label">{{ site_settings.always_recommendation_website_label }}</span>
+            <a href="{{ site_settings.company_website }}" target="_blank" rel="noopener">{{ site_settings.company_website }}</a>
+        </div>
+    </div>
 </div>
 {% endif %}
 

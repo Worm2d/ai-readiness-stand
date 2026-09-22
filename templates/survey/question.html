@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="card">
-    {% if total > 1 %}
+    {% if total > 1 and site_settings.show_question_counter %}
     <div class="progress-wrap"><div class="progress-bar" style="width: {{ progress_percent }}%;"></div></div>
     <div class="progress-label">Вопрос {{ step }} из {{ total }}</div>
     {% endif %}
