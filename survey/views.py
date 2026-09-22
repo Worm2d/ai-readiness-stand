@@ -4,6 +4,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views import View
 
+from core.mailer import send_report_email
 from core.models import SiteSettings
 
 from .forms import ContactForm, build_question_form
@@ -21,7 +22,7 @@ class SurveyQuestionView(View):
     template_name = "survey/question.html"
 
     def _get_all_questions(self):
-        """Полный список активных вопросов в порядке показа. Это ФИКСИРОВАНный
+        """Полный список активных вопросов в порядке показа. Это ФИКСИРОВАнный
         список: именно по нему считается "step" в URL и общий "total" в счётчике
         прогресса, независимо от того, видны ли конкретной сессии условные вопросы."""
         return list(
@@ -188,6 +189,16 @@ class SurveyContactsView(View):
             session.is_completed = True
             session.finished_at = timezone.now()
             session.save()
+
+            # Отправка письма с отчётом никогда не должна ломать основной сценарий:
+            # если SMTP не настроен или произошла ошибка — пользователь всё равно
+            # должен увидеть страницу результата.
+            try:
+                report_url = request.build_absolute_uri(reverse("report", args=[session.uuid]))
+                send_report_email(session, report_url)
+            except Exception:
+                pass
+
             return redirect("survey_result", session_uuid=session.uuid)
 
         return render(
