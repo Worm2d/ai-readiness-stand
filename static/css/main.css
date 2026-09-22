@@ -36,6 +36,14 @@ label.field-label { font-weight: 600; display: block; margin-bottom: 8px; }
 .recommendation-item { display: flex; align-items: flex-start; gap: 14px; border-left: 6px solid var(--primary); background: #fff; border-radius: 12px; padding: 16px 20px; margin-bottom: 14px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); font-size: 16px; line-height: 1.5; }
 .recommendation-marker { flex: 0 0 auto; width: 28px; height: 28px; border-radius: 50%; background: var(--primary); color: #fff; font-size: 15px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
 .recommendation-text { flex: 1; padding-top: 3px; }
+.always-recommendation { background: var(--primary); color: #fff; border-radius: var(--radius); padding: 32px; margin: 24px 0; }
+.always-recommendation-title { font-size: 24px; font-weight: 800; margin-bottom: 12px; }
+.always-recommendation-text { font-size: 16px; line-height: 1.6; margin-bottom: 20px; opacity: 0.95; }
+.always-recommendation-contacts { display: flex; flex-wrap: wrap; gap: 24px; }
+.always-recommendation-contact { display: flex; flex-direction: column; gap: 4px; }
+.always-recommendation-label { font-size: 13px; text-transform: uppercase; letter-spacing: 0.04em; opacity: 0.85; }
+.always-recommendation-contact a { color: #fff; font-size: 22px; font-weight: 700; text-decoration: none; }
+.always-recommendation-contact a:hover { text-decoration: underline; }
 .service-card { background: #fff; border-radius: 14px; padding: 20px; margin-bottom: 14px; border: 1px solid #eee; }
 .service-title { font-weight: 700; font-size: 18px; margin-bottom: 6px; }
 .qr-block { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; justify-content: center; margin: 24px 0; }
