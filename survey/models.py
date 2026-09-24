@@ -118,14 +118,6 @@ class SurveySession(models.Model):
     visitor_phone = models.CharField("Телефон", max_length=50, blank=True, null=True)
     personal_data_consent = models.BooleanField("Согласие на обработку персональных данных", default=False)
     personal_data_consent_at = models.DateTimeField("Время согласия на обработку персональных данных", null=True, blank=True)
-    max_questions_seen = models.PositiveIntegerField(
-        "Максимум показанных вопросов",
-        default=0,
-        help_text=(
-            "Служебное поле: не даёт счётчику \"Вопрос X из N\" уменьшаться при повторном ответе "
-            "на условный вопрос."
-        ),
-    )
 
     class Meta:
         verbose_name = "Сессия опроса"
