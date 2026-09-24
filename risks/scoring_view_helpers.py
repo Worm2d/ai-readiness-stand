@@ -2,7 +2,7 @@
 from core.models import SiteSettings
 from services.models import Service
 
-from survey.scoring import calculate_score, get_score_interpretation, select_relevant_risks
+from survey.scoring import calculate_score, get_score_interpretation, select_relevant_risks, collect_triggered_risk_ids
 
 
 def _collect_mitigation_recommendations(risks):
@@ -26,6 +26,13 @@ def build_report_context(session):
     interpretation = get_score_interpretation(score)
     risks = select_relevant_risks(session)
 
+    has_triggered_risks = bool(collect_triggered_risk_ids(session))
+    risks_heading = (
+        "Выявленные риски"
+        if has_triggered_risks
+        else "Риски не выявлены, но стоит помнить о теневом использовании ИИ:"
+    )
+
     relevant_category_ids = set()
     for risk in risks:
         relevant_category_ids.update(risk.categories.values_list("id", flat=True))
@@ -47,6 +54,7 @@ def build_report_context(session):
         "score": score,
         "interpretation": interpretation,
         "risks": risks,
+        "risks_heading": risks_heading,
         "recommendations": recommendations,
         "services": services,
     }
