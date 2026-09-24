@@ -24,7 +24,7 @@ class SiteSettingsAdmin(admin.ModelAdmin):
         ),
         (
             "Страница результата",
-            {"fields": ("result_title", "qr_hint_text", "show_score_block")},
+            {"fields": ("result_title", "qr_hint_text", "show_score_number", "show_score_block")},
         ),
         (
             "Обязательная рекомендация (показывается всегда)",
