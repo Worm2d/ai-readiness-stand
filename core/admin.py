@@ -15,6 +15,7 @@ class SiteSettingsAdmin(admin.ModelAdmin):
                     "personal_data_consent_text",
                     "privacy_policy_file",
                     "show_question_counter",
+                    "show_question_progress_bar",
                 )
             },
         ),
@@ -24,7 +25,16 @@ class SiteSettingsAdmin(admin.ModelAdmin):
         ),
         (
             "Страница результата",
-            {"fields": ("result_title", "qr_hint_text", "show_score_number", "show_score_block")},
+            {
+                "fields": (
+                    "result_title",
+                    "qr_hint_text",
+                    "show_score_number",
+                    "show_score_block",
+                    "show_risk_categories",
+                    "show_risk_case",
+                )
+            },
         ),
         (
             "Обязательная рекомендация (показывается всегда)",

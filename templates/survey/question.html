@@ -1,8 +1,10 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="card">
-    {% if total > 1 and site_settings.show_question_counter %}
+    {% if total > 1 and site_settings.show_question_progress_bar %}
     <div class="progress-wrap"><div class="progress-bar" style="width: {{ progress_percent }}%;"></div></div>
+    {% endif %}
+    {% if total > 1 and site_settings.show_question_counter %}
     <div class="progress-label">Вопрос {{ step }} из {{ total }}</div>
     {% endif %}
 
@@ -24,12 +26,12 @@
         {% elif question.question_type == "text_input" or question.question_type == "number_input" %}
             {{ form.answer }}
         {% elif question.question_type == "info_text" %}
-            <p style="font-size:18px; color:#444; margin: 24px 0;">Нажмите «{% if is_first %}Начать{% else %}Далее{% endif %}», чтобы продолжить.</p>
+            <p style="font-size:18px; color:#444; margin: 24px 0;">Нажмите «{% if is_first %}Начать{% else %}Дальше{% endif %}», чтобы продолжить.</p>
         {% endif %}
         <div class="nav-buttons">
             <span></span>
             <button type="submit" class="btn-secondary" style="background: var(--primary); color: #fff; border: none;">
-                {% if is_first %}Начать{% else %}Далее{% endif %}
+                {% if is_first %}Начать{% else %}Дальше{% endif %}
             </button>
         </div>
     </form>

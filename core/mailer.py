@@ -14,10 +14,11 @@ logger = logging.getLogger(__name__)
 
 
 def _render_email_body(template, session, report_url, site_settings):
-    visitor_name = (session.visitor_name or "").strip() or "Уважаемый клиент"
+    visitor_name = (session.visitor_name or "").strip()
+    greeting_name = f", {visitor_name}" if visitor_name else ""
     try:
         return template.format(
-            visitor_name=visitor_name,
+            visitor_name=greeting_name,
             report_url=report_url,
             company_name=site_settings.company_name,
             company_email=site_settings.company_email,
