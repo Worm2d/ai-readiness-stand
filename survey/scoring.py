@@ -1,7 +1,7 @@
 """Логика скоринга и подбора релевантных рисков для отчёта (раздел 4 ТЗ)."""
 from risks.models import Risk, ScoreInterpretation
 
-MIN_RISKS_IN_REPORT = 5
+FALLBACK_RISKS_COUNT = 5
 
 
 def collect_triggered_risk_ids(session):
@@ -48,24 +48,19 @@ def get_score_interpretation(score):
 
 def select_relevant_risks(session):
     """Возвращает риски, напрямую сработавшие по тегам выбранных ответов.
-    Если сработавших рисков меньше MIN_RISKS_IN_REPORT, дополняет список
-    самыми приоритетными активными рисками (по критичности), чтобы отчёт
-    не выглядел пустым при малом числе отвеченных вопросов."""
+    Если не сработал ни один риск — показывает FALLBACK_RISKS_COUNT самых
+    приоритетных активных рисков. Если хотя бы один риск сработал —
+    показывает только их, без дополнений."""
     risk_ids = collect_triggered_risk_ids(session)
     risks_qs = Risk.objects.filter(is_active=True).prefetch_related("categories", "related_service")
 
     if risk_ids:
-        relevant = list(risks_qs.filter(id__in=risk_ids).order_by("order", "-id"))
-    else:
-        relevant = []
+        return list(risks_qs.filter(id__in=risk_ids).order_by("order", "-id"))
 
-    if len(relevant) < MIN_RISKS_IN_REPORT:
-        severity_order = {"critical": 0, "high": 1, "medium": 2, "low": 3}
-        fallback = sorted(
-            risks_qs.exclude(id__in=[r.id for r in relevant]),
-            key=lambda r: (severity_order.get(r.severity, 4), r.order),
-        )
-        needed = MIN_RISKS_IN_REPORT - len(relevant)
-        relevant.extend(fallback[:needed])
-
-    return relevant
+    # fallback — ни одного triggered риска
+    severity_order = {"critical": 0, "high": 1, "medium": 2, "low": 3}
+    fallback = sorted(
+        risks_qs,
+        key=lambda r: (severity_order.get(r.severity, 4), r.order),
+    )
+    return fallback[:FALLBACK_RISKS_COUNT]
