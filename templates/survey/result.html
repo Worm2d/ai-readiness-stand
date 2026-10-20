@@ -1,5 +1,12 @@
 {% extends "base.html" %}
 {% block content %}
+{% if site_settings.logo %}
+<div class="report-logo">
+    <a href="{{ site_settings.company_website }}" target="_blank" rel="noopener">
+        <img src="{{ site_settings.logo.url }}" alt="{{ site_settings.company_name }}">
+    </a>
+</div>
+{% endif %}
 {% if site_settings.show_qr_codes and report_qr %}
 <div class="qr-block">
     <div style="text-align:center;">
