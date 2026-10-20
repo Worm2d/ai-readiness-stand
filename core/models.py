@@ -103,6 +103,38 @@ class SiteSettings(models.Model):
         ),
     )
 
+    show_qr_codes = models.BooleanField(
+        "Показывать QR-коды на странице результата",
+        default=False,
+        help_text=(
+            "Если включено — на странице результата опроса показываются QR-коды со ссылкой на отчёт "
+            "(сверху и снизу страницы). По умолчанию выключено."
+        ),
+    )
+    show_report_link = models.BooleanField(
+        "Показывать надпись «Ссылка на этот отчёт»",
+        default=True,
+        help_text=(
+            "Если выключено — в конце страницы результата не показывается текстовая ссылка на "
+            "персональный отчёт."
+        ),
+    )
+    telegram_url = models.URLField(
+        "Ссылка на Telegram",
+        blank=True,
+        default="",
+        help_text=(
+            "Например, https://t.me/your_channel. Если поле пустое — кнопка Telegram в конце отчёта "
+            "не показывается."
+        ),
+    )
+    max_url = models.URLField(
+        "Ссылка на MAX",
+        blank=True,
+        default="",
+        help_text="Ссылка на канал или страницу в мессенджере MAX. Если поле пустое — кнопка MAX в конце отчёта не показывается.",
+    )
+
     always_recommendation_title = models.CharField(
         "Заголовок обязательной рекомендации",
         max_length=255,

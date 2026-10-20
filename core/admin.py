@@ -28,13 +28,19 @@ class SiteSettingsAdmin(admin.ModelAdmin):
             {
                 "fields": (
                     "result_title",
+                    "show_qr_codes",
                     "qr_hint_text",
+                    "show_report_link",
                     "show_score_number",
                     "show_score_block",
                     "show_risk_categories",
                     "show_risk_case",
                 )
             },
+        ),
+        (
+            "Соцсети (в конце отчёта)",
+            {"fields": ("telegram_url", "max_url")},
         ),
         (
             "Обязательная рекомендация (показывается всегда)",
