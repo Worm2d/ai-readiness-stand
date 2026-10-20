@@ -10,3 +10,13 @@ venv/
 .venv/
 *.log
 *:Zone.Identifier
+contacts.txt
+media/
+db.sqlite3
+risks_export.json
+risks_rewritten.json
+contacts.txt
+media/
+db.sqlite3
+risks_export.json
+risks_rewritten.json
