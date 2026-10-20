@@ -26,7 +26,16 @@
         {% elif question.question_type == "text_input" or question.question_type == "number_input" %}
             {{ form.answer }}
         {% elif question.question_type == "info_text" %}
-            <p style="font-size:18px; color:#444; margin: 24px 0;">Нажмите «{% if is_first %}Начать{% else %}Дальше{% endif %}», чтобы продолжить.</p>
+            {% if is_last and interpretation %}
+            <div class="result-summary" style="--summary-color: {{ interpretation.color }};">
+                <div class="result-summary-icon">!</div>
+                <div class="result-summary-body">
+                    <div class="result-summary-label">Ваш результат</div>
+                    <div class="result-summary-title">{{ interpretation.title }}</div>
+                </div>
+            </div>
+            {% endif %}
+            <p class="result-summary-hint">{% if is_last %}Нажмите «Дальше», чтобы получить подробный отчёт по рискам.{% else %}Нажмите «{% if is_first %}Начать{% else %}Дальше{% endif %}», чтобы продолжить.{% endif %}</p>
         {% endif %}
         <div class="nav-buttons">
             <span></span>

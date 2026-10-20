@@ -9,7 +9,7 @@ from core.models import SiteSettings
 
 from .forms import ContactForm, build_question_form
 from .models import Answer, AnswerOption, Question, SurveySession
-from .scoring import calculate_score
+from .scoring import calculate_score, get_score_interpretation
 
 
 class SurveyStartView(View):
@@ -22,7 +22,7 @@ class SurveyQuestionView(View):
     template_name = "survey/question.html"
 
     def _get_all_questions(self):
-        """Полный список активных вопросов в порядке показа. Это ФИКСИРОВАнный
+        """Полный список активных вопросов в порядке показа. Это ФИКСИРОВАНный
         список: именно по нему считается "step" в URL и общий "total" в счётчике
         прогресса, независимо от того, видны ли конкретной сессии условные вопросы."""
         return list(
@@ -144,8 +144,20 @@ class SurveyQuestionView(View):
             session.save()
         return redirect("survey_result", session_uuid=session.uuid)
 
+    def _is_last_visible(self, session, step):
+        """True, если после вопроса на этом step для сессии больше нет видимых вопросов."""
+        all_questions = self._get_all_questions()
+        return not any(q.is_visible_for_session(session) for q in all_questions[step:])
+
+    def _get_interpretation(self, session):
+        """Интерпретация балла по текущим ответам сессии; при любой ошибке — None."""
+        try:
+            return get_score_interpretation(calculate_score(session))
+        except Exception:
+            return None
+
     def _context(self, session, question, form, step, total):
-        return {
+        context = {
             "session": session,
             "question": question,
             "form": form,
@@ -154,6 +166,12 @@ class SurveyQuestionView(View):
             "progress_percent": round(step / total * 100) if total else 0,
             "is_first": step == 1,
         }
+        if question.question_type == "info_text":
+            is_last = self._is_last_visible(session, step)
+            context["is_last"] = is_last
+            if is_last:
+                context["interpretation"] = self._get_interpretation(session)
+        return context
 
 
 class SurveyContactsView(View):
@@ -221,6 +239,7 @@ class SurveyResultView(View):
 
         context = build_report_context(session)
         report_url = request.build_absolute_uri(reverse("report", args=[session.uuid]))
-        context["report_qr"] = make_qr_data_uri(report_url)
+        if context["site_settings"].show_qr_codes:
+            context["report_qr"] = make_qr_data_uri(report_url)
         context["report_url"] = report_url
         return render(request, self.template_name, context)
