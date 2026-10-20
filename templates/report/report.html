@@ -1,5 +1,12 @@
 {% extends "base.html" %}
 {% block content %}
+{% if site_settings.logo %}
+<div class="report-logo">
+    <a href="{{ site_settings.company_website }}" target="_blank" rel="noopener">
+        <img src="{{ site_settings.logo.url }}" alt="{{ site_settings.company_name }}">
+    </a>
+</div>
+{% endif %}
 {% include "report/_report_body.html" %}
 {% include "report/_social_links.html" %}
 {% if site_settings.logo %}
